@@ -50,4 +50,12 @@ public class Resident {
     public String getName() {
         return "[" + residentID + "]: " + firstname + " " + lastname;
     }
+
+    public String getOutputText() {
+        var sb = new StringBuilder();
+        sb.append(lastname + ",");
+        sb.append(firstname + ",");
+        sb.append(residentID + ",");
+        sb.append(matchedProgram + ",");
+    }
 }

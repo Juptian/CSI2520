@@ -8,8 +8,11 @@ import java.util.HashMap;
 // this is the (incomplete) class that will generate the resident and program maps
 public class GaleShapley {
 	
-	public static HashMap<Integer,Resident> residents;
-	public static HashMap<String,Program> programs;
+	public HashMap<Integer,Resident> residents;
+	public HashMap<String,Program> programs;
+
+    private int numUnmatched = 0;
+    private int posAvailable = 0;
 	
 
 	public GaleShapley(String residentsFilename, String programsFilename) throws IOException, 
@@ -183,15 +186,15 @@ public class GaleShapley {
 
     public void writeOutput(String outputFilename) throws IOException{
         var bw = new BufferedWriter(new FileWriter(outputFilename));
-        bw.write("# Residents\n");
+        bw.write("lastname,firstname,residentID,programID,name\n");
+
         for(var resident : residents.values()) {
-            bw.write("" + resident.getName() + " matched with " + resident.getMatchedProgram() + "\n");
+            // returns lastname,firstname,resID,programID,
+            bw.write(resident.getOutputText());
+            var progName = programs.get(resident.getROL()).getName();
+            bw.write(progName+"\n");
         }
 
-        bw.write("\n# Programs\n");
-        for(var program : programs.values()) {
-            bw.write(program.getName() + " has matched with: " + Arrays.toString(program.getMatchedResidents()) + "\n");
-        }
         bw.flush();
         bw.close();
     }
