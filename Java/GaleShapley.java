@@ -2,6 +2,7 @@
 // Winter 2026
 // Robert Laganiere, uottawa.ca
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 
 // this is the (incomplete) class that will generate the resident and program maps
@@ -16,6 +17,7 @@ public class GaleShapley {
 		
 		readResidents(residentsFilename);
 		readPrograms(programsFilename);
+        galeShapleyAlgorithm();
 	}
 	
 	// Reads the residents csv file
@@ -179,8 +181,26 @@ public class GaleShapley {
 		}	
     }
 
+    public void writeOutput(String outputFilename) throws IOException{
+        var bw = new BufferedWriter(new FileWriter(outputFilename));
+        bw.write("# Residents\n");
+        for(var resident : residents.values()) {
+            bw.write("" + resident.getName() + " matched with " + resident.getMatchedProgram() + "\n");
+        }
+
+        bw.write("\n# Programs\n");
+        for(var program : programs.values()) {
+            bw.write(program.getName() + " has matched with: " + Arrays.toString(program.getMatchedResidents()) + "\n");
+        }
+        bw.flush();
+        bw.close();
+    }
+
+    private void galeShapleyAlgorithm() {
+
+    }
+
 	public static void main(String[] args) {
-		
 		
 		try {
 			
@@ -188,6 +208,8 @@ public class GaleShapley {
 			
 			System.out.println(gs.residents);
 			System.out.println(gs.programs);
+
+            gs.writeOutput("output.txt");
 			
         } catch (Exception e) {
             System.err.println("Error reading the file: " + e.getMessage());

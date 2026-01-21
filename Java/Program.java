@@ -54,16 +54,21 @@ public class Program {
     }
 
     public void addResident(int residentID) {
-        numberOfResidents++;
-        if(numberOfResidents < quota) {
-            matchedResidents[numberOfResidents]=residentID;
-        } else if(rank(residentID) >= leastPreferred()) {
-            
-        }
-        numberOfResidents--;
+        matchedResidents[++numberOfResidents] = residentID;
     }
 
-    private void swapResidents(int incomming, int outgoing) {
+    public void swapResidents(int incomming, int outgoing) {
+        //TODO:
+        // Find index of outgoing resident
+        // Put incomming resident in their spot
+        // Get the outgoing resident
+        // Remove their active program and set it back to none
+    }
 
+    public String getName() {
+        return name;
+    }
+    public int[] getMatchedResidents() {
+        return matchedResidents;
     }
 }
