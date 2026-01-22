@@ -65,6 +65,9 @@ public class Program {
 
 		for (Resident r : matchedResidents) {
 			int rank = rank(r.getID());
+            if(rank == -1) {
+                return r;
+            }
 			if (rank > worstRank) {
 				worstRank = rank;
 				worst = r;
@@ -76,16 +79,15 @@ public class Program {
 	// addResident
 	public boolean addResident(Resident r) {
 		int rRank = rank(r.getID());
-		if (rRank == -1) return false;
-
-		if (matchedResidents.size() < quota) {
-			matchedResidents.add(r);
-			r.match(this, rRank);
-			return true;
-		}
-
+        // We can still allow people who aren't on the ROL if we have extra room
+        if (matchedResidents.size() < quota) {
+            matchedResidents.add(r);
+            r.match(this, rRank);
+            return true;
+        }
+        if (rRank == -1) return false;
 		Resident worst = leastPreferred();
-		if (rank(worst.getID()) > rRank) {
+		if (worst.getMatchedRank() > rRank || worst.getMatchedRank() == -1) {
 			matchedResidents.remove(worst);
 			worst.unmatch();
 			matchedResidents.add(r);

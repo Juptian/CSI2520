@@ -53,7 +53,9 @@ public class Resident {
 	public String getNextProgramID() {
 		return rol[nextProposalIndex++];
 	}
-
+    public int getMatchedRank() {
+        return matchedRank;
+    }
 	public void match(Program p, int rank) {
 		matchedProgram = p;
 		matchedRank = rank;

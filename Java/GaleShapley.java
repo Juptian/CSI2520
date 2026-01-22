@@ -209,13 +209,28 @@ public class GaleShapley {
 
     /*
     *
-    * 
+    *
+    public void writeOutput(String outputFilename) throws IOException{
+        var bw = new BufferedWriter(new FileWriter(outputFilename));
+        bw.write("lastname,firstname,residentID,programID,name\n");
+
+        for(var resident : residents.values()) {
+            // returns lastname,firstname,resID,programID,
+            bw.write(resident.getOutputText());
+            var progName = programs.get(resident.getROL()).getName();
+            bw.write(progName+"\n");
+        }
+
+        bw.flush();
+        bw.close();
+    }
     *
     * */
 	// Output
-	public void printFinalResults() {
+	public void printFinalResults(String outputFilename) throws IOException {
 
-		System.out.println("lastname,firstname,residentID,programID,name");
+        var bw = new BufferedWriter(new FileWriter(outputFilename));
+        bw.write("lastname,firstname,residentID,programID,name\n");
 
 		int unmatchedCount = 0;
 
@@ -226,12 +241,12 @@ public class GaleShapley {
 
 			if (p == null) {
 				unmatchedCount++;
-				System.out.println(
-						r.getLastname() + "," + r.getFirstname() + "," + r.getID() + ",XXX,NOT_MATCHED"
+				bw.write(
+						r.getLastname() + "," + r.getFirstname() + "," + r.getID() + ",XXX,NOT_MATCHED\n"
 				);
 			} else {
-				System.out.println(
-						r.getLastname() + "," + r.getFirstname() + "," + r.getID() + "," + p.getProgramID() + "," + p.getName()
+				bw.write(
+						r.getLastname() + "," + r.getFirstname() + "," + r.getID() + "," + p.getProgramID() + "," + p.getName() + "\n"
 				);
 			}
 		}
@@ -242,9 +257,11 @@ public class GaleShapley {
 			remainingPositions += p.getQuota() - p.getFilledPositions();
 		}
 
-		System.out.println("");
-		System.out.println("Number of unmatched residents: " + unmatchedCount);
-		System.out.println("Number of positions available: " + remainingPositions);
+		bw.write("\n");
+		bw.write("\nNumber of unmatched residents: " + unmatchedCount);
+		bw.write("\nNumber of positions available: " + remainingPositions);
+        bw.flush();
+        bw.close();
 	}
 
 	public static void main(String[] args) {
@@ -253,9 +270,8 @@ public class GaleShapley {
 		try {
 			
 			GaleShapley gs= new GaleShapley(args[0],args[1]);
-
 			gs.GaleShapleyAlgo();
-			gs.printFinalResults();
+			gs.printFinalResults(args[2]);
 
 			
         } catch (Exception e) {
