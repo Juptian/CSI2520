@@ -2,7 +2,6 @@
 // Winter 2026
 // Robert Laganiere, uottawa.ca
 import java.io.*;
-import java.util.Arrays;
 import java.util.HashMap;
 
 // this is the (incomplete) class that will generate the resident and program maps
@@ -10,9 +9,6 @@ public class GaleShapley {
 	
 	public HashMap<Integer,Resident> residents;
 	public HashMap<String,Program> programs;
-
-    private int numUnmatched = 0;
-    private int posAvailable = 0;
 	
 
 	public GaleShapley(String residentsFilename, String programsFilename) throws IOException, 
@@ -20,9 +16,9 @@ public class GaleShapley {
 		
 		readResidents(residentsFilename);
 		readPrograms(programsFilename);
-        galeShapleyAlgorithm();
 	}
-	
+
+
 	// Reads the residents csv file
 	// It populates the residents HashMap
     public void readResidents(String residentsFilename) throws IOException, 
@@ -184,35 +180,79 @@ public class GaleShapley {
 		}	
     }
 
-    public void writeOutput(String outputFilename) throws IOException{
-        var bw = new BufferedWriter(new FileWriter(outputFilename));
-        bw.write("lastname,firstname,residentID,programID,name\n");
 
-        for(var resident : residents.values()) {
-            // returns lastname,firstname,resID,programID,
-            bw.write(resident.getOutputText());
-            var progName = programs.get(resident.getROL()).getName();
-            bw.write(progName+"\n");
-        }
+	// Algorithme Gale-Shapley
+	public void GaleShapleyAlgo() {
 
-        bw.flush();
-        bw.close();
-    }
+		boolean progress = true;
 
-    private void galeShapleyAlgorithm() {
+		while (progress) {
+			progress = false;
 
-    }
+			for (Resident r : residents.values()) {
+
+				if (r.isMatched() || !r.hasMorePrograms())
+					continue;	// Skip resident
+
+				String programID = r.getNextProgramID();
+				Program p = programs.get(programID);
+
+				if (p == null || !p.member(r.getID()))
+					continue;	// Skip program
+
+				boolean matched = p.addResident(r);
+				if (matched)
+					progress = true;
+			}
+		}
+	}
+
+
+	// Output
+	public void printFinalResults() {
+
+		System.out.println("lastname,firstname,residentID,programID,name");
+
+		int unmatchedCount = 0;
+
+		// Affichage par résident
+		for (Resident r : residents.values()) {
+
+			Program p = r.getMatchedProgram();
+
+			if (p == null) {
+				unmatchedCount++;
+				System.out.println(
+						r.getLastname() + "," + r.getFirstname() + "," + r.getID() + ",XXX,NOT_MATCHED"
+				);
+			} else {
+				System.out.println(
+						r.getLastname() + "," + r.getFirstname() + "," + r.getID() + "," + p.getProgramID() + "," + p.getName()
+				);
+			}
+		}
+
+		// Calcul des postes restants
+		int remainingPositions = 0;
+		for (Program p : programs.values()) {
+			remainingPositions += p.getQuota() - p.getFilledPositions();
+		}
+
+		System.out.println("");
+		System.out.println("Number of unmatched residents: " + unmatchedCount);
+		System.out.println("Number of positions available: " + remainingPositions);
+	}
 
 	public static void main(String[] args) {
+		
 		
 		try {
 			
 			GaleShapley gs= new GaleShapley(args[0],args[1]);
-			
-			System.out.println(gs.residents);
-			System.out.println(gs.programs);
 
-            gs.writeOutput("output.txt");
+			gs.GaleShapleyAlgo();
+			gs.printFinalResults();
+
 			
         } catch (Exception e) {
             System.err.println("Error reading the file: " + e.getMessage());

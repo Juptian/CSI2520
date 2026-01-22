@@ -2,100 +2,102 @@
 // Winter 2026
 // Robert Laganiere, uottawa.ca
 
+import java.util.ArrayList;
+
 // this is the (incomplete) Program class
 public class Program {
 	
-	private final String programID;
-	private final String name;
-	private final int quota;
+	private String programID;
+	private String name;
+	private int quota;
 	private int[] rol;
-    private final int[] matchedResidents;
-    private int leastPreferredMember;
-    private int numberOfResidents;
+	private ArrayList<Resident> matchedResidents;	// List of residents matched to program
 	
 	// constructs a Program
     public Program(String id, String n, int q) {
+	
 		programID= id;
-        name= n;
-        quota= q;
-        matchedResidents = new int[quota];
-    }
+		name= n;
+		quota= q;
+		matchedResidents = new ArrayList<>();
+	}
 
     // the rol in order of preference
 	public void setROL(int[] rol) {
 		
 		this.rol= rol;
 	}
-	
+
+	public String getName() {
+		return name;
+	}
+
+	public int getQuota() {
+		return quota;
+	}
+
+	public int getFilledPositions() {
+		return matchedResidents.size();
+	}
+
+	public String getProgramID() {
+		return programID;
+	}
+
+	// Member
+	public boolean member(int residentID) {
+		for (int r : rol)
+			if (r == residentID) return true;
+		return false;
+	}
+
+	// Rank
+	public int rank(int residentID) {
+		for (int i = 0; i < rol.length; i++)
+			if (rol[i] == residentID) return i;
+		return -1;
+	}
+
+	// leastPreferred
+	public Resident leastPreferred() {
+		Resident worst = null;
+		int worstRank = -1;
+
+		for (Resident r : matchedResidents) {
+			int rank = rank(r.getID());
+			if (rank > worstRank) {
+				worstRank = rank;
+				worst = r;
+			}
+		}
+		return worst;
+	}
+
+	// addResident
+	public boolean addResident(Resident r) {
+		int rRank = rank(r.getID());
+		if (rRank == -1) return false;
+
+		if (matchedResidents.size() < quota) {
+			matchedResidents.add(r);
+			r.match(this, rRank);
+			return true;
+		}
+
+		Resident worst = leastPreferred();
+		if (rank(worst.getID()) > rRank) {
+			matchedResidents.remove(worst);
+			worst.unmatch();
+			matchedResidents.add(r);
+			r.match(this, rRank);
+			return true;
+		}
+		return false;
+	}
+
 	// string representation
 	public String toString() {
       
        return "["+programID+"]: "+name+" {"+ quota+ "}" +" ("+rol.length+")";	  
 	}
-
-    public boolean member(int memberID) {
-        for(var mem : matchedResidents) {
-            if (mem == memberID)
-                    return true;
-        }
-        return false;
-    }
-
-    public int rank(int memberID) {
-        for(int i = 0; i < rol.length; i++) {
-            if(rol[i] == memberID)
-                return i;
-        }
-        return -1;
-    }
-
-    public int leastPreferred() {
-        return leastPreferredMember;
-    }
-
-    public void addResident(int residentID) {
-        matchedResidents[++numberOfResidents] = residentID;
-        var rank = rank(residentID);
-        if(rank < 0 || rank < rank(leastPreferred()))
-            leastPreferredMember = residentID;
-    }
-
-    public void swapResidents(int incoming, int outgoing) {
-        //TODO:
-        // Find index of outgoing resident
-        // Put incoming resident in their spot
-        // Get the outgoing resident
-        // Remove their active program and set it back to none
-
-        for(int i = 0; i < numberOfResidents; i++) {
-            if (matchedResidents[i] == outgoing) {
-                matchedResidents[i] = incoming;
-                break;
-            }
-        }
-        if(outgoing == leastPreferredMember) {
-            leastPreferredMember = incoming;
-            findNewLeastPreferred();
-        }
-    }
-
-    private void findNewLeastPreferred() {
-        var leastRank = rank(leastPreferredMember);
-        for(int i = 0; i < numberOfResidents; i++) {
-            var rank = rank(matchedResidents[i]);
-            if(rank < 0) {
-                leastPreferredMember = matchedResidents[i];
-                return;
-            } else if(rank > leastRank) {
-                leastPreferredMember = matchedResidents[i];
-            }
-        }
-    }
-
-    public String getName() {
-        return name;
-    }
-    public int[] getMatchedResidents() {
-        return matchedResidents;
-    }
 }
