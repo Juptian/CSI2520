@@ -207,7 +207,11 @@ public class GaleShapley {
 		}
 	}
 
-
+    /*
+    *
+    * 
+    *
+    * */
 	// Output
 	public void printFinalResults() {
 
